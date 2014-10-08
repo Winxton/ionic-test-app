@@ -1,36 +1,45 @@
 angular.module('starter.controllers', [])
 
+.controller('MainController', function($scope, $location, $ionicModal) {
+  console.log("Main Controller");
+
+  // Check if authenticated from token
+  $scope.isAuthenticated = false;
+
+  if ($scope.isAuthenticated) {
+
+  }
+  else {
+
+    $location.path('login');
+  }
+})
+
 .controller('AppCtrl', function($scope, $ionicModal, $timeout) {
-  // Form data for the login modal
-  $scope.loginData = {};
 
-  // Create the login modal that we will use later
-  $ionicModal.fromTemplateUrl('templates/login.html', {
-    scope: $scope
-  }).then(function(modal) {
-    $scope.modal = modal;
-  });
+})
 
-  // Triggered in the login modal to close it
-  $scope.closeLogin = function() {
-    $scope.modal.hide();
+.controller('LoginCtrl', function($scope, $state, $timeout, AuthenticationService, $rootScope) {
+  $scope.message = "";
+  
+  $scope.user = {
+    username: null,
+    password: null
   };
-
-  // Open the login modal
-  $scope.login = function() {
-    $scope.modal.show();
-  };
-
+ 
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
-
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
-      $scope.closeLogin();
-    }, 1000);
+    AuthenticationService.login($scope.user, function(err){
+      if (err) {
+        $scope.message = err;
+      } else {
+        // User is authenticated
+        $state.isAuthenticated = true;
+        $state.go('app.playlists');
+      }
+    });
   };
+
 })
 
 .controller('PlaylistsCtrl', function($scope) {
