@@ -1,12 +1,19 @@
 // Ionic Starter App
 
+// Global Var -> API HOST URL
+var HOST = "http://192.168.1.135:8080";
+
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+angular.module('starter', ['ionic', 'ui.router', 'starter.controllers', 'starter.services'])
 
-.run(function($rootScope, $ionicPlatform, $httpBackend, $http) {
+.run(function($rootScope, $ionicPlatform, $httpBackend, $http, APIService) {
+
+  // Set host for api
+  APIService.setHost(HOST);
+
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -36,11 +43,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       controller: 'AppCtrl'
     })
 
-    .state('app.search', {
-      url: "/search",
+    .state('app.pictures', {
+      url: "/pictures",
       views: {
         'menuContent' :{
-          templateUrl: "templates/search.html"
+          templateUrl: "templates/pictures.html",
+          controller: 'PictureCtrl'
         }
       }
     })
@@ -76,15 +84,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
   $urlRouterProvider.otherwise('/app/playlists');
 })
 
+// If user gets a 401 (unauthorized), go back to the login page
 .factory('authInterceptor',['$q','$location', '$window' ,function($q, $location,$window){
     return {
-        request: function (config) {
-          config.headers = config.headers || {};
-          if ($window.sessionStorage.token) {
-            config.headers['x-access-token'] = $window.sessionStorage.token;
-          }
-          return config;
-        },
         response: function(response){
             if (response.status === 401) {
                 $location.path('/login');
@@ -100,7 +102,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         }
     }
 }])
-
 .config(['$httpProvider',function($httpProvider) {
     //Http Intercpetor to check auth failures for xhr requests
     $httpProvider.interceptors.push('authInterceptor');

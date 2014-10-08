@@ -1,20 +1,18 @@
 angular.module('starter.services', [])
-.factory('AuthenticationService', function($rootScope, $http, $httpBackend) {
+.factory('AuthenticationService', function($rootScope, $http, $httpBackend, APIService) {
   var service = {
     login: function(user, callback) {
-
       // Get Token from server
-      $http.post('http://192.168.1.135:8080/authenticate', 
-        { username: user.username, password: user.password }, 
-        { ignoreAuthModule: true })
+      $http.post(HOST + '/authenticate', { username: user.username, password: user.password }, { ignoreAuthModule: true })
 
       .success(function (data, status, headers, config) {
         if (data.error) {
           callback(data.error);
         }
         else {
-           $http.defaults.headers.common['x-access-token'] = data.token;  // Step 1
-           callback(null);
+          // Set Access Token
+          APIService.setToken(data.token);
+          callback(null);
         }
       })
 
@@ -24,18 +22,54 @@ angular.module('starter.services', [])
 
     },
     logout: function(user) {
-        delete $http.defaults.headers.common['x-access-token'];
+        APIService.removeToken();
     }
   };
   return service;
 })
 
-.factory('LoginModalService', function($rootScope) {
-  var service = {
-    broadcastLoginRequired: function() {
-        console.log("broadcasting...");
-        $rootScope.$broadcast('event:auth-loginRequired');
+// A wrapper for calls to the API
+.factory('APIService', ['$http', '$window', function ($http, $window) {
+    var serviceToken, serviceHost;
+
+    if (localStorage.getItem('token')) {
+        serviceToken = $window.localStorage.getItem('token');
     }
-  };
-  return service;
-})
+
+    return {
+        setHost: function (host) {
+            serviceHost = host;
+        },
+ 
+        setToken: function (token) {
+            serviceToken = token;
+            $window.localStorage.setItem('token', token);
+        },
+ 
+        getToken: function () {
+            return serviceToken;
+        },
+ 
+        removeToken: function() {
+            serviceToken = undefined;
+            $window.localStorage.removeItem('token');
+        },
+ 
+        get: function (uri, params) {
+
+            return $http.get(serviceHost + uri, 
+              {
+                params: params,
+                headers: {'x-access-token' : serviceToken}
+              });
+        },
+ 
+        post: function (uri, params) {
+            return $http.post(serviceHost + uri, 
+              {
+                params: params,
+                headers: {'x-access-token' : serviceToken}
+              });
+        }
+    };
+}]);
