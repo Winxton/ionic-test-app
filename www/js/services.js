@@ -36,40 +36,65 @@ angular.module('starter.services', [])
         serviceToken = $window.localStorage.getItem('token');
     }
 
-    return {
-        setHost: function (host) {
-            serviceHost = host;
-        },
- 
-        setToken: function (token) {
-            serviceToken = token;
-            $window.localStorage.setItem('token', token);
-        },
- 
-        getToken: function () {
-            return serviceToken;
-        },
- 
-        removeToken: function() {
-            serviceToken = undefined;
-            $window.localStorage.removeItem('token');
-        },
- 
-        get: function (uri, params) {
+    var APIService = {};
 
-            return $http.get(serviceHost + uri, 
-              {
-                params: params,
-                headers: {'x-access-token' : serviceToken}
-              });
-        },
- 
-        post: function (uri, params) {
-            return $http.post(serviceHost + uri, 
-              {
-                params: params,
-                headers: {'x-access-token' : serviceToken}
-              });
-        }
+    APIService.setHost =  function (host) {
+        serviceHost = host;
     };
+
+    APIService.setToken = function (token) {
+        serviceToken = token;
+        $window.localStorage.setItem('token', token);
+    };
+
+    APIService.getToken = function () {
+        return serviceToken;
+    };
+
+    APIService.removeToken = function() {
+        serviceToken = undefined;
+        $window.localStorage.removeItem('token');
+    };
+
+    APIService.get = function (uri, params) {
+
+        return $http.get(serviceHost + uri,
+          {
+            params: params,
+            headers: {'x-access-token' : serviceToken}
+          });
+    };
+
+    APIService.post = function (uri, params) {
+        return $http(
+          {
+            method: "POST",
+            url: serviceHost + uri,
+            data: params,
+            headers: {'x-access-token' : serviceToken}
+          });
+    };
+
+    APIService.getImageUri = function(pictureId, width, height) {
+        var params = {
+            format: "URL",
+            type: "displayPreview",
+            id: pictureId,
+            convert : true,
+            resize: true,
+            width: width,
+            height: height
+        };
+        return this.post('/api/getDataUri', params);
+    };
+
+    APIService.getDevice = function(deviceId) {
+        return this.get('/api/device/' + deviceId, params);
+    };
+
+    APIService.getDevices = function() {
+      return this.get('/api/devices');
+    };
+
+    return APIService;
 }]);

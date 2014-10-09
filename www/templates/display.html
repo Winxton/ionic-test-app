@@ -1,0 +1,48 @@
+<div class="bar bar-header">
+    <a ui-sref="app.pictures" class="button icon-left ion-chevron-left button-clear button-dark">Back</a>
+    <div class="h1 title">Picture Display</div>
+    <button class="button" ng-click="openPopover($event)">Test</button>
+</div>
+
+<ion-view>
+    <ion-content>
+        <div class="card">
+            <div class="item item-divider">
+                {{ pictureName }}
+            </div>
+            <div class="item item-image">
+                <img class="icon item" ng-src="{{ imageData }}">
+            </div>
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Device
+                </div>
+                <select ng-model="selectedDevice"
+                        ng-change="changeDevice(selectedDevice)"
+                        ng-options="device.name for device in devices | filter:{type : 'display'}">
+                </select>
+            </label>
+
+            <a class="item item-icon-left assertive" href="#">
+                <i class="icon ion-close-circled"></i>
+                Delete Image
+            </a>
+            <a class="item item-icon-left positive" href="#">
+                <i class="icon ion-ios7-monitor"></i>
+                Send to device
+            </a>
+        </div>
+    </ion-content>
+</ion-view>
+
+<!-- Testing purposes vs the action sheet -->
+<script id="my-popover.html" type="text/ng-template">
+    <ion-popover-view>
+        <ion-header-bar>
+            <h1 class="title">Popover Title</h1>
+        </ion-header-bar>
+        <ion-content>
+
+        </ion-content>
+    </ion-popover-view>
+</script>

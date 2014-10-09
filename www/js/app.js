@@ -53,14 +53,16 @@ angular.module('starter', ['ionic', 'ui.router', 'starter.controllers', 'starter
       }
     })
 
-    .state('app.browse', {
-      url: "/browse",
+    .state('app.display', {
+      url: "/display/:pictureId/:pictureName",
       views: {
-        'menuContent' :{
-          templateUrl: "templates/browse.html"
-        }
+          'menuContent': {
+              templateUrl: "templates/display.html",
+              controller: 'DisplayCtrl'
+          }
       }
     })
+
     .state('app.playlists', {
       url: "/playlists",
       views: {
@@ -81,11 +83,11 @@ angular.module('starter', ['ionic', 'ui.router', 'starter.controllers', 'starter
       }
     });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/playlists');
+  $urlRouterProvider.otherwise('/app');
 })
 
 // If user gets a 401 (unauthorized), go back to the login page
-.factory('authInterceptor',['$q','$location', '$window' ,function($q, $location,$window){
+.factory('authInterceptor',['$q','$location', '$window' ,function($q, $location,$window,APIService){
     return {
         response: function(response){
             if (response.status === 401) {
@@ -96,6 +98,7 @@ angular.module('starter', ['ionic', 'ui.router', 'starter.controllers', 'starter
         responseError: function(rejection) {
             if (rejection.status === 401) {
                 console.log("Response Error 401",rejection);
+                // APIService.removeToken();
                 $location.path('/login');
             }
             return $q.reject(rejection);
